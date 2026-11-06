@@ -1,0 +1,10 @@
+services:
+  rf4-fish-search:
+    image: liwangfei2/rf4-fish-search:latest
+    container_name: rf4-fish-search
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      PORT: "9580"
+    volumes:
+      - ./data:/data
