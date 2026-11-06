@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PORT=8080
+    PORT=9580
 
 WORKDIR /app
 
@@ -17,5 +17,5 @@ COPY samples.txt .
 RUN mkdir -p /data
 VOLUME ["/data"]
 
-EXPOSE 8080
-CMD ["gunicorn", "--workers", "1", "--threads", "4", "--bind", "0.0.0.0:8080", "--timeout", "120", "app:app"]
+EXPOSE 9580
+CMD ["gunicorn", "--workers", "1", "--threads", "4", "--bind", "0.0.0.0:9580", "--timeout", "120", "app:app"]
