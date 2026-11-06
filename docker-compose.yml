@@ -5,6 +5,6 @@ services:
     restart: unless-stopped
     pull_policy: always
     ports:
-      - "9580:8080"
+      - "9580:9580"
     volumes:
       - ./data:/data
