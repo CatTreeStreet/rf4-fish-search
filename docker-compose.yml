@@ -1,0 +1,9 @@
+services:
+  rf4-fish-search:
+    build: .
+    container_name: rf4-fish-search
+    restart: unless-stopped
+    ports:
+      - "9580:8080"
+    volumes:
+      - ./data:/data
