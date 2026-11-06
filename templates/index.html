@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RF4 鱼种资料查询</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">RUSSIAN FISHING 4</p>
+        <h1>鱼种资料查询</h1>
+        <p class="sub">查鱼名、找饵料、看窝子与钓鱼限制</p>
+      </div>
+      <div class="count"><strong>{{ total }}</strong><span>条资料</span></div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="notice {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <section class="panel">
+      <form class="search" action="{{ url_for('index') }}" method="get">
+        <input type="search" name="q" value="{{ query }}" placeholder="输入鱼名或饵料关键词，例如：白斑红点鲑、Spiker">
+        <button type="submit">搜索</button>
+        {% if query %}<a class="reset" href="{{ url_for('index') }}">清除</a>{% endif %}
+      </form>
+      <p class="hint">支持鱼名、饵料、喜爱窝子和限制条件检索；输入完整鱼名时优先显示精确结果。</p>
+    </section>
+
+    <section class="results">
+      <div class="section-head">
+        <h2>{% if query %}搜索结果{% else %}鱼种资料{% endif %}</h2>
+        <span>{{ results|length }} 条</span>
+      </div>
+      {% if results %}
+        <div class="fish-list">
+          {% for fish in results %}
+            <article class="fish-card">
+              <div class="fish-title">
+                <h3>{{ fish.name }}</h3>
+                <form method="post" action="{{ url_for('delete_fish', fish_id=fish.id) }}" onsubmit="return confirm('确定删除 {{ fish.name }} 吗？')">
+                  <input type="hidden" name="q" value="{{ query }}">
+                  <button class="delete" type="submit">删除</button>
+                </form>
+              </div>
+              <div class="field"><b>饵料</b><p>{{ fish.food or '暂无资料' }}</p></div>
+              <div class="field"><b>喜爱窝子</b><p>{{ fish.groundbait or '无 / 暂无资料' }}</p></div>
+              <div class="field"><b>限制</b><p>{{ fish.limits or '暂无特殊限制资料' }}</p></div>
+              <details><summary>原始记录</summary><p class="raw">{{ fish.raw }}</p></details>
+              <footer>更新于 {{ fish.updated_at }}</footer>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">
+          <strong>没有找到匹配的鱼种</strong>
+          <p>可以换一个鱼名或饵料关键词，或者在下方导入自己的资料。</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="panel import-panel">
+      <div class="section-head"><h2>导入 / 维护资料</h2></div>
+      <form method="post" action="{{ url_for('import_text') }}" enctype="multipart/form-data">
+        <label for="records">批量粘贴（每行一条）</label>
+        <textarea id="records" name="records" rows="6" placeholder="白斑红点鲑 吃Spiker系列、旋转饵 喜爱窝子无 限制：底钓时实际饵深须大于1米"></textarea>
+        <div class="upload-row">
+          <input type="file" name="file" accept=".txt,.md,.csv">
+          <button type="submit">导入资料</button>
+        </div>
+      </form>
+      <div class="tools">
+        <form method="post" action="{{ url_for('import_sample') }}">
+          <button class="secondary" type="submit">导入内置示例资料</button>
+        </form>
+        <span>支持 TXT / MD / CSV 文本文件，单次最大 32 MB。同名鱼种会自动更新。</span>
+      </div>
+      <p class="format">格式：鱼名 吃饵料 喜爱窝子窝子描述 限制：限制说明。喜爱窝子和限制字段可省略。CSV 请按每行一条上述文本记录填写。</p>
+    </section>
+
+    <footer class="page-foot">RF4 Fish Search · 数据保存在本机 SQLite，不依赖外部 API。</footer>
+  </main>
+</body>
+</html>
